@@ -4,39 +4,36 @@ from PySide import QtCore
 from observers.file_observer import FileObserver
 
 # Dispara um evento 'newCallerId' quando uma chamada telefonica é detectada
-class CallerId(QtCore.QThread):
+class CallerId(QtCore.QObject):
+
     newCallerId = QtCore.Signal(str)
 
-    currentId = None
+    def __init__(self, Parent, resourceInfo, resource = "File"):
+        QtCore.QObject.__init__(self, Parent)
 
-    resource = None
-
-    resourInfo = None
-
-    def __init__(self, resourceInfo, resource = "File"):
-        QtCore.QThread.__init__(self)
-        self.resource = resource
+        #Inicializando atributos de classe
+        self.currentId = None
         self.resourceInfo = resourceInfo
+        self.resource = resource
 
-    def run(self):
-        if(self.resource == "File"):
+        self.listen()
+
+    def listen(self):
+        if self.resource == "File":
             self.listenFile()
-        elif(self.resource == "UDP"):
+        elif self.resource == "UDP":
             self.listenUDP()
         else:
-            raise Exception(u"Tipo de CallerId não implementado")
+            raise Exception(u"Tipo de recurso não implementado")
 
-        self.exec_()
-
-    # Recupera o telefone da chamada corrente
     def get(self):
-        return self.currentId.id;
+        return self.currentId
 
     def listenFile(self):
-        fo = FileObserver(self.resourceInfo)
+        fo = FileObserver(self, self.resourceInfo)
         fo.newDataRead.connect(self.newDataReadSlot)
 
     @QtCore.Slot(str)
     def newDataReadSlot(self, data):
-        print data
+        self.currentId = data
         self.newCallerId.emit(self.currentId)
