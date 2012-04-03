@@ -2,6 +2,7 @@
 import sys, time
 from PySide import QtCore
 from observers.file_observer import FileObserver
+from observers.udp_listener import UpdListener
 
 # Dispara um evento 'newCallerId' quando uma chamada telefonica é detectada
 class CallerId(QtCore.QObject):
@@ -32,6 +33,10 @@ class CallerId(QtCore.QObject):
     def listenFile(self):
         fo = FileObserver(self, self.resourceInfo)
         fo.newDataRead.connect(self.newDataReadSlot)
+
+    def listenUDP(self):
+        udp = UpdListener(self, self.resourceInfo)
+        udp.newDataRead.connect(self.newDataReadSlot)
 
     @QtCore.Slot(str)
     def newDataReadSlot(self, data):

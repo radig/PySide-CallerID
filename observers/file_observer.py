@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys, time
 from PySide import QtCore
 
 class FileObserver(QtCore.QFileSystemWatcher):
